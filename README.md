@@ -1,8 +1,8 @@
 # 🏠 AI Home Lab — Part Deux
 
-> *When one AI agent isn't enough, you build a whole Pokémon team.*
+> *Phase 1 of assimilation. The homelab was the sandbox. Everything else is next.*
 
-A local-first, privacy-respecting multi-agent AI infrastructure that runs a personal homelab assistant, fitness coach, camera alert handler, and morning digest — all powered by a network of specialized AI agents on dedicated hardware.
+A local-first, privacy-respecting multi-agent AI infrastructure that started with homelab automation and is expanding into work intelligence, family logistics, consulting discovery, and home automation — powered by a network of specialized AI agents on dedicated hardware.
 
 ---
 
@@ -292,25 +292,98 @@ User Request → Discord/Telegram
 
 ## 🔮 Future Plans & Next Steps
 
-### Near Term
+### Near Term — Expanding Beyond Infrastructure
 - **Ditto Dashboard** — Dedicated Ditto-specific control plane separate from the ops cockpit
 - **Model benchmarking suite** — Automated A/B testing of local models for different task types
 - **Expanded local inference** — Test additional MoE models as they become available (Qwen 4, Llama 4 MoE)
 - **Voice integration** — TTS/STT for agent interaction
 - **UniFi integration** — Deeper network monitoring and client anomaly detection
 
-### Medium Term
-- **Multi-agent collaboration** — Direct agent-to-agent handoff for complex workflows
+### Medium Term — Multi-Agent Collaboration
+- **Direct agent-to-agent handoff** — Complex workflows split across specialized agents
 - **Home Assistant bridge** — Agent-driven smart home control with safety guardrails
 - **Knowledge base RAG** — Local document ingestion and retrieval over the Obsidian vault
 - **Enhanced dashboards** — Real-time WebSocket updates, historical trend graphs
-- **Mobile companion** — Lightweight status view for phone
 
 ### Exploratory
-- **Additional agent personas** — Specialized agents for specific domains (code review, security audit, dog safety)
+- **Additional agent personas** — Specialized agents for specific domains
 - **Federated model routing** — Dynamic task-to-model assignment based on capability requirements
 - **Local fine-tuning** — Custom LoRA adapters on Ditto for domain-specific tasks
-- **Hardware expansion** — Evaluate dedicated GPU nodes for larger local models
+
+---
+
+## 🌐 Beyond the Homelab — Phase 1 of Assimilation
+
+The homelab automation is where it started, but it's not where it ends. The same infrastructure — always-on agents, multi-platform messaging, local + cloud model routing, cron-driven intelligence, and Obsidian-backed persistent memory — extends naturally into every corner of daily life. Here's what's on the roadmap.
+
+### 📡 World Event Monitoring & Work Impact Analysis
+
+**Research agents that watch the world so you don't have to.**
+
+- Monitor regulatory changes, cybersecurity incidents, and technology policy shifts that could impact enterprise cloud architecture
+- Track competitor movements, funding rounds, and product launches in the AI governance and cloud security space
+- Cross-reference breaking news against your current projects and flag "this affects you" items
+- Deliver a concise daily briefing: *what happened, why it matters to your work, and what (if anything) you should do about it*
+
+### 💼 Consulting Opportunity Discovery
+
+**Agents that find opportunities while you focus on delivering.**
+
+- Monitor government RFPs, consulting marketplaces, and industry forums for relevant opportunities
+- Match requirements against your expertise profile (cloud architecture, AI governance, Zero Trust, identity platforms)
+- Draft initial qualification summaries and flag high-fit opportunities for review
+- Track submission deadlines so nothing falls through the cracks
+
+### 👨‍👩‍👧 Family Logistics & Communication
+
+**The assistant that keeps family life running.**
+
+- Morning briefing to each family member via SMS/Discord: *their schedule for the day, weather forecast, and anything they need to bring*
+- School calendar integration — early dismissal days, picture day, permission slip deadlines
+- Activity coordination — sports schedules, practice times, who needs to be where
+- "Dinner decision agent" — factors in schedules, dietary restrictions, what's in the fridge, and weather (grill or stove?)
+
+### 🏠 Intelligent Home Automation
+
+**Go beyond "lights on at sunset" to context-aware home intelligence.**
+
+- Arrival detection — geofence triggers: disarm security, adjust thermostat, preheat based on dinner plan
+- Energy optimization — time-of-use rate awareness, solar production monitoring, EV charging scheduling
+- Preventative maintenance — dryer lint alerts, HVAC filter reminders, water leak detection escalation
+- Pet safety — ingredient scanning against known triggers before purchasing food or treats (already in design)
+
+### 💰 Personal Finance & Admin
+
+**Automate the tedious stuff.**
+
+- Receipt capture → categorization → expense report draft
+- Subscription audit: what you're paying for, what you haven't used in 3 months
+- Bill negotiation research: "here's what competitors charge, here's a script for retention"
+- Tax prep document collection throughout the year instead of the March scramble
+
+### 📚 Continuous Learning & Research
+
+**An AI-powered research assistant that builds knowledge over time.**
+
+- "Deep dive" research agents that spend hours reading papers, extracting insights, and building structured summaries
+- Cross-reference new information against your existing Obsidian knowledge base
+- Generate Anki/flashcard decks from anything you're learning
+- Weekly "what's new in your field" synthesis from arXiv, blogs, and industry publications
+
+### The Pattern
+
+Every one of these use cases follows the same architecture that already works:
+
+```
+Trigger (time / event / user request)
+    → Agent evaluates: Ditto-local or Gengar-cloud?
+    → Agent gathers context (Obsidian, web search, APIs)
+    → Agent executes or drafts for approval
+    → Delivers to the right platform (Discord, SMS, email)
+    → Records outcome for future reference
+```
+
+The homelab was the sandbox. Now it's the launchpad.
 
 ---
 
