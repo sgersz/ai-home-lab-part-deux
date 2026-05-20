@@ -72,7 +72,7 @@ Adding AI to a homelab isn't about the models — it's about **closing the gap b
 ## 🖥️ Hardware
 
 ### Gengar — The Orchestrator
-**Mac Mini M4** (Apple Silicon, ~36GB unified memory)
+**Mac Mini M4** (Apple Silicon, 16GB unified memory)
 
 The brains of the operation. Runs [Hermes Agent](https://github.com/NousResearch/hermes-agent) as the primary orchestrator, connecting to cloud LLMs for complex reasoning, tool orchestration, and system control. Hosts the ops dashboard, manages cron jobs, and bridges all platforms (Discord + Telegram).
 
