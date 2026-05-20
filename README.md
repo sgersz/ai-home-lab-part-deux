@@ -65,7 +65,7 @@ Adding AI to a homelab isn't about the models — it's about **closing the gap b
 
 ![AI Home Lab Architecture](assets/architecture_diagram.png)
 
-> **[Interactive SVG version](assets/architecture_diagram.html)** — open in any browser for the full dark-themed diagram with grid background, color-coded components, and animated pulse indicator. Available offline — zero dependencies.
+> **[Interactive SVG version](assets/architecture_diagram.html)** — open in any browser for the full dark-themed diagram with grid background, color-coded components, and animated pulse indicator. Ships with the repo and works locally, with a web font fallback if external fonts are unavailable.
 
 ---
 
@@ -161,8 +161,7 @@ A dark-themed, real-time web dashboard that provides unified visibility into the
 - Cron job status and last-run times
 - Rotus fitness app health
 - Obsidian vault sync status
-- OpenRouter usage and credits
-- Firecrawl cloud status
+- Service health snapshots for key integrations
 - Backup job status
 
 ---
