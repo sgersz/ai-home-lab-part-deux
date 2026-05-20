@@ -195,8 +195,6 @@ Everything runs on [Hermes Agent](https://github.com/NousResearch/hermes-agent) 
 - **Persistent memory** — Cross-session context retention
 - **Obsidian integration** — Read/write/search the knowledge vault
 
-![Hermes Dashboard](assets/hermes_dashboard.png)
-
 ### Task Distribution (Cron Jobs)
 
 | Job | Frequency | Engine | Delivery |
@@ -410,8 +408,7 @@ ai-home-lab-part-deux/
 ├── assets/
 │   ├── architecture_diagram.png     ← Dark-themed SVG architecture diagram
 │   ├── architecture_diagram.html    ← Interactive diagram (open in browser)
-│   ├── gengar_cockpit.png           ← Ops dashboard screenshot
-│   └── hermes_dashboard.png         ← Agent framework dashboard
+│   └── gengar_cockpit.png           ← Ops dashboard screenshot
 └── docs/                            ← Detailed documentation (coming soon)
 ```
 
