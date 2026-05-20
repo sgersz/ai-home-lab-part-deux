@@ -6,6 +6,61 @@ A local-first, privacy-respecting multi-agent AI infrastructure that runs a pers
 
 ---
 
+## 🧠 How AI Changed the Game
+
+### Before: The Traditional Homelab
+
+A typical homelab is a collection of services running on repurposed hardware — Plex for media, Home Assistant for automation, Frigate for cameras, a pile of Docker containers for everything else. It works, but it's fundamentally **reactive and manual**:
+
+- **You watch the dashboards.** Netdata, Uptime Kuma, Homepage — dozens of status tiles that you have to remember to check.
+- **You troubleshoot alone.** A container crashes at 3 AM? You find out when you wake up. Then you SSH in, dig through logs, Google the error, piece together a fix.
+- **You write every automation.** Want a daily health summary? Write a script. Camera alerts? Write another script. Each one is a bespoke snowflake that only you understand.
+- **You're the bottleneck.** Every integration, every alert rule, every config change goes through you. The homelab is only as smart as the time you have to spend on it.
+
+This was the state of things for years. Services ran. Things mostly worked. But the homelab wasn't a partner — it was a collection of appliances waiting to be told what to do.
+
+### After: The AI-Native Homelab
+
+Adding Gengar (a cloud-powered AI orchestrator) and Ditto (a local LLM server) transformed the homelab from a **static infrastructure** into an **intelligent operating environment**. The shift wasn't incremental — it was categorical.
+
+#### ⚡ Gengar: The Conductor
+
+Gengar is the **first thing that could actually do things** — not just report status, but act on it. It has full shell access, Docker control, SSH to every host, file system access, and Git. It doesn't just tell you a container is down — it investigates why, checks related services, reads the logs, and either fixes it or drafts exactly what you need to do.
+
+What used to take 45 minutes of context-switching (SSH, grep, Docker inspect, log spelunking) is now a single sentence in Discord: *"Frigate is spiking memory again — check it out."* Gengar does the spelunking, correlates across systems, and presents findings.
+
+**But the real unlock is what Gengar builds while you sleep.** It writes monitoring scripts. Creates dashboards. Sets up cron jobs that watch other cron jobs. It maintains an Obsidian knowledge base so nothing is lost between sessions. It backs itself up to GitHub every 12 hours. The homelab went from *"I maintain this"* to *"this maintains itself — and tells me when it needs me."*
+
+#### 👻 Ditto: Privacy Without Compromise
+
+Ditto solved the problem that keeps most people from going all-in on AI assistants: **not everything should go to the cloud.**
+
+Ditto runs entirely on local hardware — a BOSGAME M5 with 128GB of unified memory and an AMD Ryzen AI Max+ 395. Five specialized model lanes cover everything from quick answers (Gemma 4 at 55 tok/s) to deep reasoning (Qwen 3.6 35B MoE at 46 tok/s). Zero API keys. Zero cloud calls. Zero privacy concerns.
+
+The insight was architectural: **not every task needs gpt-5.4.** Summarizing logs? Researching a topic? Analyzing a dashboard? Ditto does it locally, instantly, and for free. When a task genuinely needs frontier-model reasoning, Ditto drafts a precise prompt and hands it to Gengar. This isn't a fallback — it's a **task routing system** where the right model handles the right job.
+
+**The MoE discovery was a breakthrough.** Mixture-of-Experts models achieve ~6x higher throughput than dense models of the same parameter class on AMD unified memory hardware. This single insight turned Ditto from "a fun local toy" into a genuinely capable daily driver.
+
+#### 🔄 The Multiplier Effect
+
+Gengar and Ditto together create something neither could alone:
+
+| Capability | Before | After |
+|-----------|--------|-------|
+| **Incident response** | Discover at morning coffee, fix when free | Watchdogs detect → Ditto analyzes → Gengar fixes or escalates |
+| **System visibility** | Check dashboards manually | Morning digest in Discord with overnight summary |
+| **Service uptime** | Reactive restarts | 1-minute watchdogs with silent-on-healthy pattern |
+| **Knowledge retention** | Memory and scattered notes | Obsidian vault maintained by agents, Git-backed |
+| **New capabilities** | Weeks of scripting | Describe what you want, Gengar builds it |
+| **Privacy-sensitive tasks** | Cloud-only or nothing | Ditto handles locally, Gengar handles the rest |
+| **Daily overhead** | 20-30 min checking systems | One Discord message, 30 seconds to scan |
+
+### The Takeaway
+
+Adding AI to a homelab isn't about the models — it's about **closing the gap between observation and action.** Traditional homelabs are great at collecting data (metrics, logs, alerts) but terrible at doing anything with it without human intervention. Gengar closes that gap on the action side. Ditto closes it on the privacy side. Together, they turn a collection of services into something that feels less like infrastructure and more like a teammate.
+
+---
+
 ## 🧬 Architecture Overview
 
 ![AI Home Lab Architecture](assets/architecture_diagram.png)
