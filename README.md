@@ -262,29 +262,131 @@ Automated GitHub backups every 12 hours preserve: skills, cron definitions, sani
 
 ## 🗺️ The Task Routing Model
 
+Every request that hits the system goes through a multi-factor routing decision. It's not just "is it read-only?" — it's a layered evaluation that considers **capability fit**, **permission requirements**, **cost efficiency**, and **privacy sensitivity**.
+
+### The Decision Framework
+
 ```
 User Request → Discord/Telegram
                     │
                     ▼
          ┌──────────────────────┐
-         │   Is it read-only?   │
+         │ 1. PERMISSION CHECK  │
+         │  What tools does     │
+         │  this task need?     │
          └──────┬───────────┬───┘
-               Yes           No
-                │             │
-                ▼             ▼
-        ┌──────────┐   ┌──────────┐
-        │  DITTO   │   │  GENGAR  │
-        │ (local)  │   │ (cloud)  │
-        └────┬─────┘   └────┬─────┘
-             │               │
-             │ Needs action? │
-             ├───────────────►
-             │  Draft Gengar
-             │  prompt
-             │
-        Privacy-first     Full capability
-        Zero cloud cost   Complex reasoning
+                │           │
+        Read-only       Mutation
+        (search,        (write files,
+         analyze,        restart services,
+         summarise)     SSH, git push)
+                │           │
+                │           ▼
+                │    ┌──────────────┐
+                │    │   GENGAR     │
+                │    │  (cloud)     │
+                │    │  gpt-5.4     │
+                │    │  Full access │
+                │    └──────────────┘
+                ▼
+     ┌──────────────────────┐
+     │ 2. CAPABILITY CHECK  │
+     │  Is there a Ditto    │
+     │  model that fits?    │
+     └──────┬───────────┬───┘
+            │           │
+       Yes —            No —
+       right model      need frontier
+       exists           reasoning
+            │               │
+            ▼               ▼
+     ┌──────────────┐ ┌──────────────┐
+     │ 3. COST CHECK│ │   GENGAR     │
+     │  Cloud call   │ │  (cloud)     │
+     │  worth it?    │ │  gpt-5.4     │
+     └──┬───────┬───┘ └──────────────┘
+        │       │
+   Cheap/     Expensive/
+   trivial    complex
+        │       │
+        ▼       ▼
+ ┌──────────┐ ┌──────────────┐
+ │  DITTO   │ │   GENGAR     │
+ │ (local)  │ │  (cloud)     │
+ │  $0/call │ │  frontier    │
+ └──────────┘ └──────────────┘
 ```
+
+### Layer 1: Permission Check — "What can this task touch?"
+
+This is the hard wall. If a task requires **any mutation capability** — file writes, Docker restarts, SSH access, Git pushes, cron modifications — it's Gengar or nothing. Ditto literally cannot do these things; its toolset is deliberately stripped of all mutation tools.
+
+| Permission Level | Tools Available | Routed To |
+|-----------------|----------------|-----------|
+| **Read-only** | web_search, file reads, system polls, Docker inspect, API queries, image analysis | Ditto or Gengar (next layers decide) |
+| **Mutation** | file write/edit, Docker control, SSH, git push, cron management, service restart | **Gengar only** |
+
+### Layer 2: Capability Check — "Can a local model handle this?"
+
+Even for read-only tasks, not all are created equal. The question isn't just "can Ditto read this?" — it's "do we have a local model with the right cognitive profile for this task?"
+
+| Task Profile | Cognitive Requirement | Best Ditto Lane | Local Viable? |
+|-------------|----------------------|-----------------|----------------|
+| Quick lookup / FAQ | Low reasoning, fast response | `ditto-fast` (Gemma 4) | ✅ Always |
+| Summarization / explanation | Medium reasoning, long context | `ditto-default` (Qwen 3.6 MoE) | ✅ Default choice |
+| Research / deep reading | High reasoning, very long context | `ditto-research` (Qwen 3.6 Q8) | ✅ Yes |
+| Code review / architecture | Domain expertise, pattern matching | `ditto-coder` (Qwen 3 Coder MoE) | ✅ Yes |
+| Multi-step analysis | Heavy reasoning, chain-of-thought | `ditto-heavy` (Llama 4 Scout) | ⚠️ Slower but capable |
+| Frontier reasoning | Novel problem-solving, complex chains | *None — escalate to Gengar* | ❌ No |
+| Multi-agent orchestration | Spawning sub-agents, delegation | *None — escalate to Gengar* | ❌ No |
+| Creative generation | High-quality prose, structured output | *Cloud usually better* | ⚠️ Hit or miss |
+
+The model lane is selected **automatically** by Ditto's Hermes profile based on the task — the user just says what they want, and the right model is loaded.
+
+### Layer 3: Cost Check — "Is this worth a cloud call?"
+
+When a task *could* go to either, the third layer evaluates whether the cloud cost is justified. This matters at scale — a daily briefing that runs 7 days a week adds up.
+
+| Task Class | Cloud Cost | Ditto Cost | Decision |
+|-----------|-----------|-----------|----------|
+| Morning digest (daily, 5-10K tokens) | ~$0.02-0.05/day | $0/day | → Ditto |
+| Quick question (1-3K tokens) | ~$0.005-0.01 | $0 | → Ditto |
+| System log analysis (bulk, daily) | ~$0.10-0.30/day | $0/day | → Ditto |
+| Incident correlation (rare) | ~$0.05 | $0 | → Ditto first, escalate if needed |
+| Complex orchestration (multi-step, 10K+ tokens) | ~$0.10-0.25 | N/A (can't do it) | → Gengar |
+| GitHub PR / code changes | ~$0.05-0.15 | N/A (needs mutation) | → Gengar |
+| Frontier reasoning (novel problems) | ~$0.15-0.50 | Not viable locally | → Gengar |
+
+**The heuristic:** if Ditto can do it, Ditto *should* do it. The cost saving isn't dramatic per-call, but it compounds. More importantly, it keeps cloud API keys out of routine task processing — reducing the attack surface for credential exposure.
+
+### The Ditto-to-Gengar Escalation Pattern
+
+Even when Ditto handles the initial request, it knows its limits. When it encounters something it can't do:
+
+1. **Draft mode** — Ditto produces a precise, structured prompt that captures all context it's gathered
+2. **Handoff** — The prompt is passed to Gengar with the original user context intact
+3. **Execute** — Gengar picks up where Ditto left off, no context lost
+
+This isn't a failure mode — it's by design. Ditto is the **first line**, not the fallback.
+
+### Routing Table Summary
+
+| Task | Permissions | Ditto Model? | Cost Decision | → Route |
+|------|------------|-------------|---------------|---------|
+| "What's running on Unraid?" | Read-only | ✅ `ditto-fast` | Trivial | **Ditto** |
+| "Summarize this Frigate alert" | Read-only | ✅ `ditto-default` | Trivial | **Ditto** |
+| "Research MoE model benchmarks" | Read-only | ✅ `ditto-research` | Medium | **Ditto** |
+| "Review this Python script" | Read-only | ✅ `ditto-coder` | Trivial | **Ditto** |
+| "Analyze why Frigate crashed" | Read-only | ✅ `ditto-heavy` | Medium | **Ditto** |
+| "Restart the Frigate container" | **Mutation** | N/A | N/A | **Gengar** |
+| "Create a GitHub repo" | **Mutation** | N/A | N/A | **Gengar** |
+| "Build me a new dashboard" | **Mutation** | N/A | N/A | **Gengar** |
+| "Write an Obsidian research note" | **Mutation** | N/A | N/A | **Gengar** |
+| "Design the family logistics pipeline" | Complex planning | ❌ Frontier needed | High | **Gengar** |
+| Morning digest (cron) | Read-only | ✅ `ditto-default` | Compounds | **Ditto** (Alakazam) |
+| Backup job (cron) | **Mutation** | N/A | N/A | **Gengar** (cron) |
+
+> **The guiding principle:** Ditto handles what it can do well, locally, for free. Gengar handles everything Ditto can't — mutations, frontier reasoning, and complex orchestration. The boundary is crisp, the handoff is clean, and the user never has to think about it.
 
 ---
 
