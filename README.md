@@ -8,38 +8,9 @@ A local-first, privacy-respecting multi-agent AI infrastructure that runs a pers
 
 ## 🧬 Architecture Overview
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                        AI HOME LAB                               │
-│                                                                  │
-│  ┌──────────────┐   ┌──────────────┐   ┌──────────────────────┐ │
-│  │   GENGAR     │   │    DITTO     │   │      UNRAID          │ │
-│  │  Mac Mini M4 │   │  BOSGAME M5  │   │  i5 / RTX 3080      │ │
-│  │  Orchestrator│   │  Local LLMs  │   │  Media & Services    │ │
-│  │              │   │  Read-only   │   │                      │ │
-│  │  ┌────────┐  │   │  ┌────────┐  │   │  ┌────────────────┐  │ │
-│  │  │Hermes  │  │   │  │Ollama  │  │   │  │Docker Services │  │ │
-│  │  │Agent   │  │   │  │Models  │  │   │  │• SearXNG       │  │ │
-│  │  │Framework│  │   │  │        │  │   │  │• Frigate       │  │ │
-│  │  └────────┘  │   │  └────────┘  │   │  │• Firecrawl     │  │ │
-│  │              │   │              │   │  │• Netdata       │  │ │
-│  │  ┌────────┐  │   │  ┌────────┐  │   │  │• Plex/Media    │  │ │
-│  │  │Cubone   │  │   │  │Open    │  │   │  └────────────────┘  │ │
-│  │  │Dashboard│  │   │  │WebUI   │  │   │                      │ │
-│  │  └────────┘  │   │  └────────┘  │   │                      │ │
-│  │              │   │              │   │                      │ │
-│  │  ┌────────┐  │   │              │   │                      │ │
-│  │  │Alakazam │  │   │              │   │                      │ │
-│  │  │Digest   │  │   │              │   │                      │ │
-│  │  └────────┘  │   │              │   │                      │ │
-│  │              │   │              │   │                      │ │
-│  │  Rotus  📱   │   │              │   │                      │ │
-│  │  Fitness App │   │              │   │                      │ │
-│  └──────────────┘   └──────────────┘   └──────────────────────┘ │
-│                                                                  │
-│  📡 Discord · Telegram · Cron Jobs · Obsidian · GitHub Backup   │
-└─────────────────────────────────────────────────────────────────┘
-```
+![AI Home Lab Architecture](assets/architecture_diagram.png)
+
+> **[Interactive SVG version](assets/architecture_diagram.html)** — open in any browser for the full dark-themed diagram with grid background, color-coded components, and animated pulse indicator. Available offline — zero dependencies.
 
 ---
 
@@ -307,11 +278,13 @@ This is a **local-first, privacy-respecting** setup:
 
 ```
 ai-home-lab-part-deux/
-├── README.md                   ← You are here
+├── README.md                        ← You are here
 ├── assets/
-│   ├── gengar_cockpit.png      ← Ops dashboard screenshot
-│   └── hermes_dashboard.png    ← Agent framework dashboard
-└── docs/                       ← Detailed documentation (coming soon)
+│   ├── architecture_diagram.png     ← Dark-themed SVG architecture diagram
+│   ├── architecture_diagram.html    ← Interactive diagram (open in browser)
+│   ├── gengar_cockpit.png           ← Ops dashboard screenshot
+│   └── hermes_dashboard.png         ← Agent framework dashboard
+└── docs/                            ← Detailed documentation (coming soon)
 ```
 
 ---
