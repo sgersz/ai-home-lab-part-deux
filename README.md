@@ -6,7 +6,7 @@ This did not start as an efficiency project.
 
 It started because I wanted to see whether a local model setup was actually for me, how far I could push it, and where it made sense to keep things local versus hand them off to a stronger hosted model. That led to a small stack of purpose-built systems that now handle monitoring, research, reporting, and day-to-day homelab work.
 
-This repo is a plain-English overview of what is running, how the pieces fit together, what tools are involved, and what I want to test next.
+This repo covers what is running, how the pieces fit together, what tools are involved, and what I want to test next.
 
 ## What is running today
 
