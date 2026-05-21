@@ -1,6 +1,6 @@
 # AI Home Lab - Part Deux
 
-A plain-language overview of my AI homelab and how I use local models, hosted models, agents, dashboards, and routing in practice.
+Overview of my AI homelab and how I use local models, hosted models, agents, dashboards, and routing in practice.
 
 This did not start as an efficiency project.
 
