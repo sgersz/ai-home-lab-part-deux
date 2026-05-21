@@ -1,6 +1,6 @@
 # AI Home Lab - Part Deux
 
-A local-first AI homelab built to understand how local models, cloud models, agents, dashboards, and routing actually work in day-to-day use.
+A plain-language overview of my AI homelab and how I use local models, hosted models, agents, dashboards, and routing in practice.
 
 This did not start as an efficiency project.
 
