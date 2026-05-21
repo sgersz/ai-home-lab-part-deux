@@ -10,11 +10,12 @@ This repo covers what is running, how the pieces fit together, what tools are in
 
 ## What is running today
 
-The current setup is split across four named pieces:
+The current setup is split across five named pieces:
 
 - **Gengar** is the main orchestrator. It handles system control, mutations, GitHub work, cron jobs, messaging, and anything that needs broader tool access.
 - **Ditto** is the local model box. It runs Ollama and handles read-only work like summarization, research, alert analysis, and first-pass thinking.
-- **Cubone** is the operations dashboard. It gives me one place to see system health, model status, cron state, and service checks.
+- **Cubone** is the local research and developer profile. It is used for benchmarking local LLMs, development work, and validation tasks.
+- **Gengar Cockpit** is the operations dashboard. It gives me one place to see system health, model status, cron state, and service checks.
 - **Alakazam** is the background reporting layer. It collects state, formats digests, and pushes morning briefings into Discord.
 
 The interesting part for me is not "AI replaces everything." It is figuring out which parts of the workflow are actually worth localizing, which parts benefit from a stronger hosted model, and how to make the whole thing usable without turning it into a science project that only works on a good day.
@@ -71,10 +72,26 @@ The biggest takeaway for me has been that local models became much more useful o
 
 ### Cubone
 
+**Role:** local research and developer profile  
+**Primary job:** benchmarking, development, and validation
+
+Cubone is the part of the stack I use to test how local models perform on practical work.
+
+That includes:
+
+- benchmarking local LLMs
+- testing development workflows
+- validating task quality
+- comparing how different local models handle real use cases
+
+That matters because it gives me a place to evaluate local models in practice before deciding where they fit in the broader stack.
+
+### Gengar Cockpit
+
 **Role:** operations dashboard  
 **Primary job:** visibility
 
-Cubone is the dashboard layer for the stack. It brings together:
+Gengar Cockpit is the dashboard layer for the stack. It brings together:
 
 - host health
 - Ditto telemetry
