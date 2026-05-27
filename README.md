@@ -176,7 +176,7 @@ Scheduled morning digests and automated reporting. Alert analysis and summarizat
 
 I am not pretending this is done.
 
-Current areas I am pushing on: additional local model lanes for coding and research tasks, better dashboards for inference-specific telemetry, more useful reporting that does not sound machine-generated, practical use of voice and scheduled background agents, deeper benchmarking of local models on real tasks instead of benchmark scores, and figuring out where local really earns its keep versus where hosted is still the better answer.
+Current areas I am pushing on: additional local model lanes for coding and research tasks, a consolidated service dashboard that brings together homelab health, inference telemetry, and agent status in one view, more useful reporting that does not sound machine-generated, practical use of voice and scheduled background agents, deeper benchmarking of local models on real tasks instead of benchmark scores, and figuring out where local really earns its keep versus where hosted is still the better answer.
 
 ## Privacy and scope
 
