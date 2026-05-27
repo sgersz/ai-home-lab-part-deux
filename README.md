@@ -4,147 +4,77 @@ Overview of my AI homelab and how I use local models, hosted models, agents, das
 
 This did not start as an efficiency project.
 
-It started because I wanted to see whether a local model setup was actually for me, how far I could push it, and where it made sense to keep things local versus hand them off to a stronger hosted model. That led to a small stack of purpose-built systems that now handle monitoring, research, reporting, and day-to-day homelab work.
+It started because I wanted to see whether a local model setup was actually for me, how far I could push it, and where it made sense to keep things local versus hand them off to a stronger hosted model. What followed was a year of building, breaking, rebuilding, and learning that the models themselves are only part of the story. The routing, isolation, and observability around them matter just as much.
 
-This repo covers what is running, how the pieces fit together, what tools are involved, and what I want to test next.
+This repo covers what is running today, how the pieces fit together, what tools are involved, and the lessons that came out of it.
+
+## Where this started
+
+The stack began as a single Mac Mini running Hermes Agent, with Ollama hosted on an Unraid server for local inference. The idea was straightforward: keep sensitive or low-stakes work local, push harder tasks to cloud-hosted models.
+
+That worked for about a week.
+
+Ollama on Unraid introduced constant friction. Docker GPU passthrough was fragile. Model management felt bolted onto a container orchestration model that was not designed for it. Restarting a container meant waiting for models to reload. Local inference was available in theory but unreliable in practice. It became clear that if local models were going to be a real part of the workflow, they needed dedicated hardware and a runtime that treated them as a service, not an afterthought.
+
+That led to a dedicated Linux box with 128 GB of RAM, most of it available as unified GPU memory. The plan was to run Ollama there and call it done. But once the hardware was in place, the same questions that had surfaced on Unraid came back in a new form: how many models should be running? Which ones? Who gets access to what? And how do you keep a read-only agent from wandering somewhere it should not?
+
+The runtime migration from Ollama to llama-server, the security hardening that followed, and the observability layer that made the whole thing visible were not part of the original plan. They became the plan.
 
 ## What is running today
 
-The current setup is split across five named pieces:
-
-- **Gengar** is the main orchestrator. It handles system control, mutations, GitHub work, cron jobs, messaging, and anything that needs broader tool access.
-- **Ditto** is the local model box. It runs Ollama and handles read-only work like summarization, research, alert analysis, and first-pass thinking.
-- **Cubone** is the local research and developer profile. It is used for benchmarking local LLMs, development work, and validation tasks.
-- **Gengar Cockpit** is the operations dashboard. It gives me one place to see system health, model status, cron state, and service checks.
-- **Alakazam** is the background reporting layer. It collects state, formats digests, and pushes morning briefings into Discord.
-
-The interesting part for me is not "AI replaces everything." It is figuring out which parts of the workflow are actually worth localizing, which parts benefit from a stronger hosted model, and how to make the whole thing usable without turning it into a science project that only works on a good day.
-
-## Why I built it this way
-
-I wanted to understand a few things for myself:
-
-- whether a local model setup was something I would actually use long term
-- what kinds of tasks local models are already good at
-- where local models still fall short
-- how much value comes from the tooling and routing around the models, not just the models themselves
-- what an always-on agent setup looks like when it is tied to real systems and not just a chat window
-
-That is why this stack ended up split between local and cloud instead of trying to force one model or one machine to do everything.
-
-## The main pieces
+The current setup is split across five named pieces, plus a supporting observability stack.
 
 ### Gengar
 
-**Role:** primary orchestrator  
-**Hardware:** Mac Mini M4  
-**Primary job:** control plane for the rest of the stack
+Gengar is the primary orchestrator. It runs Hermes Agent on a Mac Mini and is the only part of the system with broad mutation access. It handles file and configuration changes, cron job management, GitHub workflows, service inspection and control, Obsidian vault updates, and bridging Discord and Telegram.
 
-Gengar runs Hermes Agent and is the only part of the system with broad mutation access.
-
-That means it is the piece that can:
-
-- edit files
-- manage cron jobs
-- work with GitHub repos
-- inspect and control services
-- update notes in Obsidian
-- bridge Discord and Telegram workflows
-
-If something needs to change state, it goes through Gengar.
+If something needs to change state, it goes through Gengar. Gengar uses cloud-hosted models for tasks that need stronger reasoning, wider tool access, or direct mutation capability.
 
 ### Ditto
 
-**Role:** local read-only analyst  
-**Hardware:** BOSGAME M5  
-**Primary job:** local inference and first-pass analysis
+Ditto handles local inference and read-only analysis on a dedicated Linux box with unified memory. It runs the kinds of tasks that benefit from staying local: summarizing logs and alerts, reading dashboards and system state, research and synthesis, first-pass incident analysis, and drafting prompts for follow-up work.
 
-Ditto runs Ollama on dedicated local hardware and handles the kinds of tasks that benefit from staying local:
+Ditto also powers a Discord bot for local image generation. Same hardware, same inference runtime, different output modality.
 
-- summarizing logs
-- reading dashboards
-- research and synthesis
-- draft generation
-- first-pass incident analysis
-- prompt drafting for more complex follow-up work
+The runtime is llama-server (llama.cpp), managed via systemd as a persistent service. This was a deliberate migration away from Ollama. The details are covered in Lessons Learned, but the short version: for a multi-agent setup where uptime matters, a systemd-managed inference service with a single well-chosen model turned out to be simpler, faster, and more predictable than running multiple model aliases through a containerized orchestrator.
 
-The biggest takeaway for me has been that local models became much more useful once I stopped thinking in terms of finding one perfect model and started thinking in terms of routing.
-
-### Cubone
-
-**Role:** local research and developer profile  
-**Primary job:** benchmarking, development, and validation
-
-Cubone is the part of the stack I use to test how local models perform on practical work.
-
-That includes:
-
-- benchmarking local LLMs
-- testing development workflows
-- validating task quality
-- comparing how different local models handle real use cases
-
-That matters because it gives me a place to evaluate local models in practice before deciding where they fit in the broader stack.
+Currently Ditto serves one active model lane. Additional lanes for coding and research tasks are planned. The hardware has the headroom, and the model files are already on disk. The move to llama-server made it straightforward to spin up separate endpoints for different workloads without the overhead that made multi-model setups painful under the previous runtime.
 
 ### Gengar Cockpit
 
-**Role:** operations dashboard  
-**Primary job:** visibility
+Gengar Cockpit is the operations dashboard. It brings together host health, Ditto telemetry and model performance, cron job status, backup state, service checks, and project-specific signals.
 
-Gengar Cockpit is the dashboard layer for the stack. It brings together:
-
-- host health
-- Ditto telemetry
-- model alias and performance checks
-- cron job status
-- backup state
-- service checks
-- project-specific signals
-
-That matters because once you start adding automation and multiple agents, you need a fast way to see whether the system is healthy.
+Once you add automation and multiple agents, you need a fast way to see whether the system is healthy. The Cockpit is that surface.
 
 ![Gengar Cockpit dashboard](assets/gengar_cockpit.png)
 
 ### Alakazam
 
-**Role:** background digest and reporting layer  
-**Primary job:** scheduled summaries
+Alakazam handles scheduled reporting: morning digests and background summaries that pull together overnight state into something scannable.
 
-Alakazam is used for scheduled reporting. Right now that mainly means morning digests and other background summaries that pull together overnight state into something short enough to scan quickly.
+The collection and summarization are split into separate steps. A collector gathers structured state first, and a second pass reads that data and turns it into a digest. This keeps the reporting layer cleaner and makes it easier to reason about what the model is actually summarizing.
 
-One useful pattern here is splitting collection from summarization:
+Alakazam is deliberately constrained. It runs as a read-only profile with limited tool access, scoped credentials, and watchdog automation that monitors for unexpected behavior. More on why that matters in Lessons Learned.
 
-1. a collector gathers structured state first
-2. a second step reads that data and turns it into a digest
+### Observability stack
 
-That keeps the reporting layer cleaner and makes it easier to reason about what the model is actually summarizing.
+The observability layer is built on Loki, Prometheus, and Grafana, running alongside the rest of the homelab services. It provides centralized log aggregation across hosts and containers, metrics on inference performance and system health, and dashboards that surface what is happening without needing to SSH into individual machines.
+
+This stack was not part of the original design. It became necessary once the system grew past the point where "check the logs" was a viable debugging strategy.
 
 ## Architecture at a glance
 
-The stack is simple in principle:
-
-- local models handle the work they are good at
-- cloud models handle the work local models should not be forced to do
-- the dashboard gives visibility into what is running
-- scheduled jobs handle recurring checks and reporting
-- Obsidian acts as the long-term knowledge layer
+The stack is simple in principle. A single orchestrator handles all mutations. Local models handle the work they are good at. Cloud-hosted models handle tasks that need frontier reasoning. Scheduled jobs handle recurring checks and reporting. A dedicated observability layer provides visibility into all of it. Obsidian acts as the long-term knowledge layer.
 
 ![AI Home Lab architecture](assets/architecture_diagram.png)
 
 ## How work gets routed
 
-The routing model is simpler than the earlier version of this README made it sound.
+The routing model is straightforward. Three questions:
 
-It usually comes down to three questions:
-
-1. **Does this need to change something?**  
-   If yes, it goes to Gengar.
-
-2. **If it is read-only, can a local model do it well enough?**  
-   If yes, it usually goes to Ditto.
-
-3. **If a local model can do it, is there still a good reason to use cloud?**  
-   If no, keep it local.
+1. Does this need to change something? If yes, it goes to Gengar.
+2. If it is read-only, can a local model do it well enough? If yes, it usually goes to Ditto.
+3. If a local model can do it, is there still a good reason to use cloud? If no, keep it local.
 
 A few real examples:
 
@@ -158,117 +88,122 @@ A few real examples:
 
 The point is not to build a dramatic multi-layer routing engine. The point is to keep the boundary clear.
 
-## Models in use
-
-The exact model mix will change over time, but the current setup is organized around a few lanes.
-
-### Local lanes on Ditto
-
-| Alias | Backing model | Typical use |
-| --- | --- | --- |
-| `ditto-fast` | Gemma 4 | quick checks, short answers |
-| `ditto-default` | Qwen 3.6 35B-A3B | general use, summaries, daily briefings |
-| `ditto-research` | Qwen 3.6 35B-A3B | deeper reading and synthesis |
-| `ditto-coder` | Qwen 3 Coder 30B-A3B | code analysis and architecture review |
-| `ditto-heavy` | Llama 4 Scout 17B | slower, heavier analysis |
-
-### Hosted side
-
-Gengar uses Hermes Agent with hosted models when a task needs stronger reasoning, wider tool access, or direct mutation capability.
-
-The local side is there because I wanted to understand what local models are actually good at. The cloud side is still useful because some tasks are not worth forcing into a local-first box just for the sake of saying everything is local.
-
 ## Infrastructure and tools
 
-This stack leans on a handful of core tools.
+**Hermes Agent** is the backbone for the agent workflows. It ties together profiles, cron jobs, messaging platforms, skills, persistent memory, tool access, and automation glue. Without it, this would be a pile of scripts and one-off commands.
 
-### Hermes Agent
+**llama.cpp (llama-server)** provides the local inference runtime on the dedicated Linux box. It runs as a systemd service, exposing a single high-quality model with a generous context window.
 
-Hermes Agent is the backbone for the agent workflows. It is what ties together:
+**Obsidian** is the long-term knowledge layer. Notes, decisions, project context, and operating details live there so the system is not relying only on transient chat history.
 
-- multiple profiles
-- cron jobs
-- messaging platforms
-- skills
-- persistent memory
-- tool access
-- automation glue
+**Docker and Unraid** provide the underlying homelab service layer, roughly two dozen containers covering media automation, home automation, monitoring, search, and supporting infrastructure.
 
-Without Hermes, this would just be a pile of scripts and one-off commands.
+**SearXNG** gives agents a privacy-respecting search path without forcing everything through a commercial API.
 
-### Ollama
+**Loki, Prometheus, and Grafana** provide centralized logging, metrics, and dashboards for the entire stack.
 
-Ollama is the local inference runtime on Ditto. It makes it easy to expose model lanes in a way that the rest of the stack can actually use.
+**Frigate** handles local NVR with object detection for cameras.
 
-### Obsidian
+**ComfyUI** powers local image generation workflows on the inference box.
 
-Obsidian is the long-term knowledge layer. Notes, decisions, project context, and operating details live there so the system is not relying only on transient chat history.
+## Lessons learned
 
-### Docker and Unraid
+These are the things I would tell someone starting a similar project. Not because they are profound, but because each one represents something I had to break before I understood it.
 
-Unraid and Docker provide the underlying homelab service layer for the rest of the stack. That includes the usual mix of monitoring, camera tooling, search, and supporting services.
+### Ollama is great until it is not (for this kind of setup)
 
-### SearXNG
+I started with Ollama because everyone starts with Ollama. It is the obvious first choice: simple to install, easy to pull models, works out of the box. For running a single model and chatting with it locally, Ollama is excellent.
 
-SearXNG gives both Gengar and Ditto a privacy-respecting search path without forcing everything through a commercial API.
+For running a multi-agent system where models need to be available as reliable services, the friction adds up. Docker GPU passthrough on Unraid was fragile. Model management felt bolted onto a container orchestration model that was not designed for it. Restarting a container meant waiting for models to reload. Running multiple model aliases meant juggling memory in ways that were hard to predict.
+
+The migration to llama-server, running directly via systemd on a dedicated Linux box, changed the reliability equation. One well-chosen model, one persistent service, no container layer between the agent and inference. The systemd integration means the service restarts cleanly, logs go to journald, and resource limits are explicit.
+
+It was also faster. Benchmarking the same model under both runtimes showed a 51% performance gain under llama-server compared to the Ollama setup. That is the difference between a local model feeling usable and feeling like you are waiting on it.
+
+The migration is less convenient up front than `ollama pull`, but it is dramatically more predictable to operate. If you are exploring local models for the first time, start with Ollama. If you are building something that needs to run unattended and survive reboots, a thinner runtime with native service management may be a better fit.
+
+### Read-only is harder than it sounds
+
+I configured a profile to be read-only. It was supposed to have limited tool access, scoped credentials, and no ability to mutate anything. I trusted the configuration.
+
+It found a key anyway.
+
+The specifics are less important than the lesson: a determined agent with filesystem access and tool access can discover things you forgot existed. Credentials in environment files, keys in config directories, tokens cached where you did not expect them. A read-only profile can still read them. And if it can read them, it can use them.
+
+This was not a failure of the agent. It was a failure of my assumption that restricted tools and read-only mode were the same thing as actual isolation. They are not.
+
+### Locking down local agents
+
+The incident forced a rethinking of how the profiles are isolated. The fixes were applied across several dimensions.
+
+Each local-model profile now runs under a separate OS-level user, so filesystem permissions provide a real boundary instead of just a configuration flag. Restricted profiles use SSH-only terminal access, preventing direct local execution. Watchdog automation monitors for unexpected credential exposure and permissive key usage. Each profile gets exactly the secrets it needs and nothing more, enforced at the environment level rather than just in the profile config.
+
+Local models feel safe because they are local. That makes permissions more important, not less. A local model with broad filesystem access is not safe because it is on-premises. It is dangerous because it is on premises and someone forgot to scope its access.
+
+### Routing matters more than models
+
+I spent a lot of time early on chasing better models, bigger context windows, better benchmark scores. What actually improved the system was getting the routing right.
+
+The split between mutation (Gengar) and read-only (Ditto, Alakazam) matters more than which specific model is behind either role. Once the boundary is clear, you can swap models behind either side without changing the architecture. The model improves; the system keeps working.
+
+The other thing that changed for me: local models became much more useful once I stopped looking for one perfect model and started thinking about handoffs. A local model does not need to do everything. It needs to do the first pass well enough that the next step has less work to do, whether that next step is a human review or a handoff to a stronger model.
+
+### Observability is not optional
+
+The original stack had no observability layer. When something broke, I found out when I noticed it was broken. Sometimes hours later, sometimes days.
+
+Once you have multiple agents running scheduled jobs, two dozen containers across multiple machines, and automation that fires without anyone watching, "check the logs" stops being a strategy. You need centralized log aggregation so you are not SSHing into three different machines to piece together what happened. You need metrics on inference latency and throughput so you can tell when the local model is degrading. You need dashboards that surface health at a glance.
+
+Loki, Prometheus, and Grafana were not in the original scope. They became essential because flying blind is not sustainable for a system that runs unattended.
+
+### One model lane is enough (for now)
+
+When I was running multiple model aliases under Ollama, I had fast models, heavy models, coder models, and research models all running simultaneously. I assumed I needed all of them.
+
+The move to llama-server forced a question: what if you just pick one really good model and run it well?
+
+It turns out a single high-quality model with a generous context window covers most of what the local side actually needs to do. The specialized lanes sounded good in theory. In practice they added complexity without adding enough value to justify it.
+
+That does not mean the other lanes will never come back. The hardware has the headroom, and additional endpoints for coding and research models are planned. But standing them up will be a deliberate choice with a clear use case, not a default. Start with one well-chosen model, prove the value, then add lanes when you can point to a specific gap.
 
 ## Current capabilities
 
-A few things this setup already does well:
+A few things this setup does well.
 
-- scheduled morning digests
-- alert analysis and summarization
-- local-first research and synthesis
-- dashboard-based visibility into host and model state
-- Git-backed backups and recovery material
-- persistent project context through Obsidian
-- tool-based escalation from read-only local work to mutation-capable hosted workflows
+Scheduled morning digests and automated reporting. Alert analysis and summarization. Local-first research and synthesis. Dashboard-based visibility into host and model state. Git-backed configuration and recovery material. Persistent project context through Obsidian. Clean handoff between local analysis and cloud-hosted execution. Verified isolation between read-only and mutation-capable profiles.
 
 ## What I am still exploring
 
-This part matters more to me than pretending the build is "done."
+I am not pretending this is done.
 
-Current areas I still want to push on:
-
-- better local model benchmarking for real tasks instead of benchmark chasing
-- cleaner handoff between local analysis and hosted execution
-- more useful reporting and summaries that do not sound machine-generated
-- better dashboards for Ditto-specific telemetry and model behavior
-- more practical use of voice, notifications, and scheduled background agents
-- figuring out where local really earns its keep and where hosted is still the better answer
+Current areas I am pushing on: additional local model lanes for coding and research tasks, better dashboards for inference-specific telemetry, more useful reporting that does not sound machine-generated, practical use of voice and scheduled background agents, deeper benchmarking of local models on real tasks instead of benchmark scores, and figuring out where local really earns its keep versus where hosted is still the better answer.
 
 ## Privacy and scope
 
 This repo is intentionally sanitized.
 
-It does not include:
-
-- personal IPs
-- internal hostnames
-- secrets
-- tokens
-- environment-specific access details
-- private usage data
+It does not include IP addresses, hostnames, secrets or tokens, environment-specific access details, private usage data, or specific commercial model or provider names.
 
 It is meant to show the shape of the system, not every private implementation detail.
 
 ## Technology glossary
 
-This is a quick reference for the main technologies mentioned here.
+A quick reference for the main technologies mentioned here.
 
-- **Hermes Agent**: https://github.com/NousResearch/hermes-agent
-- **Ollama**: https://ollama.com
-- **Obsidian**: https://obsidian.md
-- **Docker**: https://www.docker.com
-- **Unraid**: https://unraid.net
-- **SearXNG**: https://docs.searxng.org
-- **FastAPI**: https://fastapi.tiangolo.com
-- **SQLite**: https://www.sqlite.org
-- **Frigate**: https://frigate.video
-- **Netdata**: https://www.netdata.cloud
-- **GitHub**: https://github.com
-- **Discord**: https://discord.com
-- **Telegram**: https://telegram.org
+- **Hermes Agent**: agent orchestration framework covering profiles, cron, tools, skills, and memory
+- **llama.cpp / llama-server**: local LLM inference runtime
+- **Obsidian**: long-term knowledge management
+- **Docker**: container runtime
+- **Unraid**: homelab operating system and NAS
+- **SearXNG**: privacy-respecting metasearch engine
+- **Loki**: log aggregation
+- **Prometheus**: metrics collection and alerting
+- **Grafana**: observability dashboards
+- **Frigate**: local NVR with object detection
+- **ComfyUI**: image generation workflow engine
+- **systemd**: Linux service manager
+- **GitHub**: version control and source hosting
+- **Discord / Telegram**: messaging platforms used for agent delivery
 
 ## Repository structure
 
@@ -284,4 +219,4 @@ ai-home-lab-part-deux/
 
 The names are a little ridiculous on purpose.
 
-The actual goal here is not to make a flashy "AI system." It is to better understand what local AI, hosted AI, routing, automation, and agent workflows look like when they are attached to real infrastructure and used regularly.
+The actual goal here is not to make a flashy AI system. It is to better understand what local AI, hosted AI, routing, automation, and agent workflows look like when they are attached to real infrastructure and used regularly. The lessons that came out of it, about isolation, observability, and picking the right runtime, were the real output. The stack is just what I built along the way.
