@@ -188,20 +188,19 @@ It is meant to show the shape of the system, not every private implementation de
 
 A quick reference for the main technologies mentioned here.
 
-- **Hermes Agent**: agent orchestration framework covering profiles, cron, tools, skills, and memory
-- **llama.cpp / llama-server**: local LLM inference runtime
-- **Obsidian**: long-term knowledge management
-- **Docker**: container runtime
-- **Unraid**: homelab operating system and NAS
-- **SearXNG**: privacy-respecting metasearch engine
-- **Loki**: log aggregation
-- **Prometheus**: metrics collection and alerting
-- **Grafana**: observability dashboards
-- **Frigate**: local NVR with object detection
-- **ComfyUI**: image generation workflow engine
-- **systemd**: Linux service manager
-- **GitHub**: version control and source hosting
-- **Discord / Telegram**: messaging platforms used for agent delivery
+- [Hermes Agent](https://github.com/NousResearch/hermes-agent): agent orchestration framework covering profiles, cron, tools, skills, and memory
+- [llama.cpp](https://github.com/ggerganov/llama.cpp): local LLM inference runtime
+- [Obsidian](https://obsidian.md): long-term knowledge management
+- [Docker](https://www.docker.com): container runtime
+- [Unraid](https://unraid.net): homelab operating system and NAS
+- [SearXNG](https://docs.searxng.org): privacy-respecting metasearch engine
+- [Loki](https://grafana.com/oss/loki/): log aggregation
+- [Prometheus](https://prometheus.io): metrics collection and alerting
+- [Grafana](https://grafana.com/oss/grafana/): observability dashboards
+- [Frigate](https://frigate.video): local NVR with object detection
+- [ComfyUI](https://github.com/comfyanonymous/ComfyUI): image generation workflow engine
+- [systemd](https://systemd.io): Linux service manager
+- [GitHub](https://github.com): version control and source hosting
 
 ## Repository structure
 
