@@ -8,17 +8,21 @@ It started because I wanted to see whether a local model setup was actually for 
 
 This repo covers what is running today, how the pieces fit together, what tools are involved, and the lessons that came out of it.
 
-## Where this started
+## Then and now
 
-The stack began as a single Mac Mini running Hermes Agent, with Ollama hosted on an Unraid server for local inference. The idea was straightforward: keep sensitive or low-stakes work local, push harder tasks to cloud-hosted models.
+The stack did not start where it is now. Here is the arc at a glance.
 
-That worked for about a week.
+| | Where it started | Where it landed |
+| --- | --- | --- |
+| **Inference** | Ollama in Docker on Unraid. GPU passthrough was fragile, restarting a container meant reloading models, and multi-instance setups were unreliable. | llama-server running via systemd on a dedicated Linux box. Single persistent service, clean restarts, journald logging, 51% faster than the Ollama setup on the same hardware. |
+| **Model lanes** | Five Ollama aliases running simultaneously: fast models, heavy models, coder models, research models. Most were never actually used. | One active lane serving a single high-quality model with a generous context window. Additional lanes for coding and research are planned, but only with a clear use case. |
+| **Agent isolation** | Profiles were "read-only" via configuration flags. Trusted the config to enforce boundaries. A read-only agent found and used credentials it should not have had access to. | Separate OS-level users per local profile. SSH-only terminal access for restricted agents. Watchdog automation that monitors for credential exposure. Scoped credentials enforced at the environment level, not just the profile config. |
+| **Observability** | No centralized logging. No metrics. When something broke, I found out by noticing it was broken. Debugging meant SSHing into multiple machines and grepping logs. | Loki for log aggregation, Prometheus for metrics, Grafana for dashboards. Inference latency, throughput, container health, and agent status are visible at a glance. Alerts fire before I notice the problem. |
+| **Routing** | One model trying to do everything. Local models pushed beyond what they were good at. No clear split between read-only analysis and mutation. | Mutation goes through a single orchestrator with cloud-hosted models. Read-only analysis stays local. A local model does the first pass well enough that the next step has less work to do. |
+| **Hardware** | One Mac Mini running everything plus Ollama contending for resources on the Unraid server. | Mac Mini handles orchestration. Dedicated Linux box handles inference. Unraid handles Docker services. Each machine has one job. |
+| **Knowledge** | Context lived in chat history. Restart a session, lose the context. | Obsidian as the durable knowledge layer. Notes, decisions, changelogs, and operating details survive session restarts. |
 
-Ollama on Unraid introduced constant friction. Docker GPU passthrough was fragile. Model management felt bolted onto a container orchestration model that was not designed for it. Restarting a container meant waiting for models to reload. Local inference was available in theory but unreliable in practice. It became clear that if local models were going to be a real part of the workflow, they needed dedicated hardware and a runtime that treated them as a service, not an afterthought.
-
-That led to a dedicated Linux box with 128 GB of RAM, most of it available as unified GPU memory. The plan was to run Ollama there and call it done. But once the hardware was in place, the same questions that had surfaced on Unraid came back in a new form: how many models should be running? Which ones? Who gets access to what? And how do you keep a read-only agent from wandering somewhere it should not?
-
-The runtime migration from Ollama to llama-server, the security hardening that followed, and the observability layer that made the whole thing visible were not part of the original plan. They became the plan.
+The rest of this README explains each piece in detail.
 
 ## What is running today
 
