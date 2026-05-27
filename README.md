@@ -46,8 +46,6 @@ Gengar Cockpit is the operations dashboard. It brings together host health, Ditt
 
 Once you add automation and multiple agents, you need a fast way to see whether the system is healthy. The Cockpit is that surface.
 
-![Gengar Cockpit dashboard](assets/gengar_cockpit.png)
-
 ### Alakazam
 
 Alakazam handles scheduled reporting: morning digests and background summaries that pull together overnight state into something scannable.
@@ -212,7 +210,6 @@ ai-home-lab-part-deux/
 ├── README.md
 └── assets/
     ├── architecture_diagram.png
-    └── gengar_cockpit.png
 ```
 
 ## Notes
